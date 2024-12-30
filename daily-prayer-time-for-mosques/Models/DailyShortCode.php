@@ -302,12 +302,18 @@ class DailyShortCode extends TimetablePrinter
 
     public function scAsrStart($attr)
     {
-        $begins = $this->row['asr_mithl_1'];
+        if(get_option('asrSelect') == 'hanafi') {
+            $method = 'asr_mithl_2';
+        } else {
+            $method = 'asr_mithl_1';
+        }
+        
+        $begins = $this->row[$method];
 
         if (! $this->deactivateTomorrow) {
 
             if ( isset($this->row['tomorrow']) && $this->isPrayerFinished($begins) ) {
-                $begins = $this->row['tomorrow']['asr_mithl_1'];
+                $begins = $this->row['tomorrow'][$method];
             }
         }
 
