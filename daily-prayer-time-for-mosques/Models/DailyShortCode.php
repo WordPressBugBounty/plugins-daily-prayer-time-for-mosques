@@ -79,7 +79,9 @@ class DailyShortCode extends TimetablePrinter
 
     public function setHanafiAsr()
     {
-        $this->isHanafiAsr = true;
+        if ($this->getAsrMethod() == 'asr_mithl_2') {
+            $this->isHanafiAsr = true;
+        }
     }
 
     public function hideRamadan()
@@ -279,15 +281,16 @@ class DailyShortCode extends TimetablePrinter
 
     public function scAsr($attr)
     {
+        $method = $this->getAsrMethod();
         $jamah = $this->row['asr_jamah'];
-        $begins = $this->row['asr_mithl_1'];
+        $begins = $this->row[$method];
 
         
         if (! $this->deactivateTomorrow) {
 
             if ( isset($this->row['tomorrow']) && $this->isPrayerFinished($jamah) ) {
                 $jamah = $this->row['tomorrow']['asr_jamah'];
-                $begins = $this->row['tomorrow']['asr_mithl_1'];
+                $begins = $this->row['tomorrow'][$method];
             }
         }
 
@@ -302,11 +305,7 @@ class DailyShortCode extends TimetablePrinter
 
     public function scAsrStart($attr)
     {
-        if(get_option('asrSelect') == 'hanafi') {
-            $method = 'asr_mithl_2';
-        } else {
-            $method = 'asr_mithl_1';
-        }
+        $method = $this->getAsrMethod();
         
         $begins = $this->row[$method];
 
@@ -318,6 +317,12 @@ class DailyShortCode extends TimetablePrinter
         }
 
         return "<span class='dpt_start " . $this->clsPrayerFinished . "'>" . $this->formatDateForPrayer($begins) . "</span>";
+    }
+
+    private function getAsrMethod() 
+    {
+        return get_option('asrSelect') == 'hanafi' ? 'asr_mithl_2' : 'asr_mithl_1';
+
     }
 
     public function scMaghrib($attr)
@@ -480,10 +485,8 @@ class DailyShortCode extends TimetablePrinter
     {
 
         $this->setDisplayForShortCode($attr);
-
-        if (isset($attr['asr'])) {
-            $this->setHanafiAsr();
-        }
+        
+        $this->setHanafiAsr();
 
         if (isset($attr['heading'])) {
             $this->setTitle(esc_attr($attr['heading']));
