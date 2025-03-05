@@ -244,7 +244,7 @@ class DailyShortCode extends TimetablePrinter
             }
         }
 
-        return "<span class='dpt_sunrise " . $this->clsPrayerFinished . " ". $this->getNextPrayerClass($this->dptHelper->getSunriseOrZawal($this->row), $this->row) ."'>" . $this->formatDateForPrayer($sunrise) . "</span>";
+        return "<span class='dpt_sunrise " . $this->clsPrayerFinished . " ". $this->getNextPrayerClass('sunrise', $this->row) ."'>" . $this->formatDateForPrayer($sunrise) . "</span>";
     }
 
     public function scZuhr($attr)
@@ -446,7 +446,7 @@ class DailyShortCode extends TimetablePrinter
 
         return "<span class='dpt_sunrise " 
                     . $this->clsPrayerFinished . " " 
-                    . $this->dptHelper->getNextPrayerClass($this->dptHelper->getSunriseOrZawal($this->row), $this->row) ."'>" 
+                    . $this->dptHelper->getNextPrayerClass('zawal', $this->row) ."'>" 
                     . $this->formatDateForPrayer($zawal) 
                 . "</span>";
     }
@@ -503,9 +503,10 @@ class DailyShortCode extends TimetablePrinter
 
     protected function getRow($attr=array())
     {
+        if (!$this->isAzanOnly && !$this->isJamahOnly) {
+            $this->setDisplayForShortCode($attr);
+        }
 
-        $this->setDisplayForShortCode($attr);
-        
         $this->isHanafiAsr = isset($attr['asr']) ? true : $this->setHanafiAsr();
 
         if (isset($attr['heading'])) {

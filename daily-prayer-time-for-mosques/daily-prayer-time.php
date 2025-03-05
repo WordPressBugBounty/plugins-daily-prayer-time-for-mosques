@@ -1,14 +1,15 @@
 <?php
 /*
 Plugin Name: Daily Prayer Time
-Version: 2025.02.02
+Version: 2025.03.04
 Plugin URI: https://wordpress.org/plugins/daily-prayer-time-for-mosques/
 Description: Masjid Prayer time in any language, in any screen
 Author: <a href="http://mmrs151.wordpress.com">mmrs151</a>
-Contributors: <a href="http://vergedesign.co.uk/">Hjeewa</a>, <a href="https://profiles.wordpress.org/kams01">kams01</a>
 Text Domain: daily-prayer-time
 Domain Path: /languages
 */
+require_once(__DIR__ . "/vendor/autoload.php");
+
 if ( ! function_exists( 'dpt_fs' ) ) {
     // Create a helper function for easy SDK access.
     function dpt_fs() {
@@ -59,7 +60,7 @@ require_once ('API/v1/PrayerTimeController.php');
 require_once ('Models/CustomPluginSettings.php');
 require_once ('Models/QuranADay/QuranDB.php');
 
-define('DPT_PLUGIN_VERSION', "2025.02.02");
+define('DPT_PLUGIN_VERSION', "2025.03.04");
 define('DPT_PLUGIN_FILE', plugin_basename(__FILE__));
 
 class DailyPrayerTime extends WP_Widget
@@ -82,7 +83,7 @@ class DailyPrayerTime extends WP_Widget
         if (get_option('dpt-init') != 1) {
             new Init();
         }
-//        delete_option('dpt-init'); // RESET EVERY REFRESH, ONLY AVAILABLE FOR TESTING
+//        delete_option('dpt-init'); // RESET EVERY REFRESH, ONLY ENABLE FOR TESTING
         
         new AdminMenu();
     

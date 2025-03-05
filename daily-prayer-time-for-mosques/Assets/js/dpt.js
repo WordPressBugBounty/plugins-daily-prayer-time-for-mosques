@@ -1,16 +1,19 @@
-var isTimerOn = false;
-
 DPT = {
+    isFirstMin: true,
+    diffMin: 59,
+    audioContext: null,
+
     init: function() {
+        this.enableAudio();
+        // console.log(timetable_params);
         this.monthlyCalendarChange();
 
         this.changeInputBackground();
         this.printDiv();
-        this.startTimer();
         this.dsRefreshNextPrayer();
         this.refreshBeforeIqamah();
         this.continiousMarquee();
-        this.digitialClock();
+        this.digitalClock();
 
         this.dimMonitorOvernight();
         this.dsRefreshQuranVerse();
@@ -21,6 +24,7 @@ DPT = {
         this.keepScreenOn();
         this.fadingMessages();
 
+        this.updateTimeDifference();
     },
 
     monthlyCalendarChange: function () {
@@ -78,10 +82,10 @@ DPT = {
 
     dsRefreshNextPrayer: function () {
         if (
-            jQuery('.x-board')[0] 
+            jQuery('.x-board')[0]
             || jQuery('.x-board-modern')[0]
             || jQuery('.d-masjid-e-usman')[0]
-        ) {        
+        ) {
 
             jQuery.ajax({
                 url: timetable_params.ajaxurl,
@@ -89,12 +93,9 @@ DPT = {
                     'action':'get_ds_next_prayer',
                 },
                 success: function(response){
-                    setTimeout(DPT.dsRefreshNextPrayer, (1000 * 60 * 1) ); // 60 seconds 
+                    setTimeout(DPT.dsRefreshNextPrayer, (1000 * 60 * 15) ); // 15 minutes
                     jQuery('.dsNextPrayer').html(response);
-                    if (! isTimerOn ) {
-                        DPT.startTimer();
-                        isTimerOn = true;
-                    }
+
                 },
                 error: function(responseObj, strError){
                     console.log(strError);
@@ -106,52 +107,55 @@ DPT = {
 
 
     dsRefreshQuranVerse: function () {
-        // if (! jQuery('.x-board')[0]) {
-        //     return;
-        // }
+
+        if ( ! jQuery('#quranCheckbox').val() ) {
+            return;
+        }
+
+            // Your code here
         jQuery.ajax({
             url: timetable_params.ajaxurl,
             data: {
-                'action':'get_ds_quran_verse',
+                'action': 'get_ds_quran_verse',
             },
-            success: function(response){
-                setTimeout(DPT.dsRefreshQuranVerse, (1000 * 30) );
+            success: function (response) {
+                console.log(response);
+                setTimeout(DPT.dsRefreshQuranVerse, (1000 * 30));
                 jQuery('#quranVerse').html(response);
             },
-            error: function(responseObj, strError){
+            error: function (responseObj, strError) {
                 console.log(strError);
             },
             timeout: (1000 * 30) // 30 seconds
         });
     },
 
-    startTimer: function () {
-        var presentTime = '';
-
-        if (document.getElementsByClassName('timeLeftCountDown')[0]) {
-            presentTime = document.getElementsByClassName('timeLeftCountDown')[0].innerHTML.trim();
-            presentTime = presentTime.split(' ')[0];
-
-            var timeArray = presentTime.split(/[:]+/);
-            if (timeArray && timeArray.length === 2) {
-
-                var m = timeArray[0];
-                var s = DPT.checkSecond((timeArray[1] - 1));
-
-                if(s == "59"){ m = m - 1;}
-
-                if ( m >= 0) {
-                    var timeLeftCountDownElement = document.getElementsByClassName('timeLeftCountDown');
-                    for(var i = 0; i < timeLeftCountDownElement.length; i++) {
-                        document.getElementsByClassName('timeLeftCountDown')[i].innerHTML = m + ":" + s;
-                    }
-                }
-                if(m == 0 && s == 0) {
-                    DPT.timeoutScreen();
-                }
-            }
-            setTimeout(DPT.startTimer, 1000);
+    beep: function() {
+        var activateBeep = jQuery('#activateBeep').val();
+        if (!activateBeep) {
+            return;
         }
+
+        if (!DPT.audioContext) {
+            console.error('AudioContext is not initialized. Please enable audio first.');
+            return;
+        }
+
+        var oscillator = DPT.audioContext.createOscillator();
+        var gainNode = DPT.audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(DPT.audioContext.destination);
+
+        oscillator.type = 'triangle'; // You can change the type to 'square', 'sawtooth', 'triangle'
+        oscillator.frequency.setValueAtTime(940, DPT.audioContext.currentTime); // Frequency in Hz
+        gainNode.gain.setValueAtTime(1, DPT.audioContext.currentTime); // Volume
+
+        oscillator.start();
+
+        setTimeout(function() {
+            oscillator.stop();
+        }, 1000); // Beep duration in milliseconds (1000ms = 1 second)
     },
 
     timeoutScreen: function() {
@@ -195,16 +199,10 @@ DPT = {
         }
     },
 
-    checkSecond: function (sec) {
-        if (sec < 10 && sec >= 0) {sec = "0" + sec}; // add zero in front of numbers < 10
-        if (sec < 0) {sec = "59"};
-        return sec;
-    },
-
     executeFunctionOnTime: function (hours, minutes, seconds, func) {
         var now = new Date();
         var then = new Date();
-    
+
         if(now.getHours() > hours ||
            (now.getHours() == hours && now.getMinutes() > minutes) ||
             now.getHours() == hours && now.getMinutes() == minutes && now.getSeconds() >= seconds) {
@@ -213,7 +211,7 @@ DPT = {
         then.setHours(hours);
         then.setMinutes(minutes);
         then.setSeconds(seconds);
-    
+
         var timeout = (then.getTime() - now.getTime());
         setTimeout(func, timeout);
     },
@@ -249,9 +247,8 @@ DPT = {
         });
     },
 
-    digitialClock: function ()
+    digitalClock: function ()
     {
-
         var newDate = new Date();
 
         newDate.setDate(newDate.getDate());
@@ -260,7 +257,7 @@ DPT = {
             var minutes = new Date().getMinutes();
             jQuery("#min").html(( minutes < 10 ? "0" : "" ) + minutes);
             },1000);
-            
+
         setInterval( function() {
             var wpHour = jQuery('#clockHour').val();
             var date = new Date();
@@ -285,66 +282,105 @@ DPT = {
             }, 1000);
     },
 
-    playFajrAdhan: function() 
-    {
+    enableAudio: function() {
         var activateAdhan = jQuery('#activateAdhan').val();
-        if ( ! activateAdhan ) {
+        var activateBeep = jQuery('#activateBeep').val();
+        if (!activateAdhan && !activateBeep) {
             return;
         }
 
-        var adhan = jQuery('#fajrAdhanTime').val();
-        if ( ! adhan ) {
+        if (localStorage.getItem('audioEnabled') === 'true') {
+            this.initializeAudioContext();
             return;
         }
-        adhan = JSON.parse(adhan);
+
+
+        // Create a button element for user interaction
+        var button = document.createElement('button');
+        button.innerHTML = 'Enable Audio';
+        button.id = 'enableAudioButton';
+        document.body.appendChild(button);
+        button.style.position = 'fixed';
+        button.style.top = '50%';
+        button.style.left = '50%';
+        button.style.transform = 'translateX(-50%)';
+        button.style.zIndex = '1000';
+
+        // Add click event listener to the button
+        button.addEventListener('click', function() {
+            DPT.initializeAudioContext();
+            localStorage.setItem('audioEnabled', 'true'); // Store the flag in localStorage
+            alert('Audio enabled. The adhan will play at the specified times.');
+            button.style.display = 'none'; // Hide the button after enabling audio
+        });
+
+    },
+
+    initializeAudioContext: function() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
+        }
+    },
+
+    playFajrAdhan: function() {
+        var adhan = jQuery('#fajrAdhanTime').val();
+        if (!adhan) {
+            return;
+        }
+
         var timeParts = adhan.split(":");
-        DPT.executeFunctionOnTime(timeParts[0], timeParts[1], timeParts[2], function(adhaan){
-            var audio = new Audio(timetable_params.fajrAdhan);
-            var playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(_ => {
-                  // Automatic playback started!
-                  // Show playing UI.
-                })
-                .catch(error => {
-                  // Auto-play was prevented
-                  // Show paused UI.
-                })
-            }
+        var adhanUrl = timetable_params.fajrAdhanUrl;
+
+        DPT.executeFunctionOnTime(timeParts[0], timeParts[1], timeParts[2], function() {
+            console.log('Playing Fajr adhan: ' + adhanUrl);
+            DPT.playAudio(adhanUrl);
         });
     },
 
-    playOtherAdhan: function() 
-    {
-        var activateAdhan = jQuery('#activateAdhan').val();
-
-        if ( ! activateAdhan ) {
-            return;
-        }
-
+    playOtherAdhan: function() {
         var iqamah = jQuery('#otherAdhanTimes').val();
-        if ( ! iqamah ) {
+        if (!iqamah) {
             return;
         }
         iqamah = JSON.parse(iqamah);
-        for(var i = 0; i < iqamah.length; i ++)
-        {
+
+        for (var i = 0; i < iqamah.length; i++) {
             var timeParts = iqamah[i].split(":");
-            DPT.executeFunctionOnTime(timeParts[0], timeParts[1], timeParts[2], function(){
-                var audio = new Audio(timetable_params.otherAdhan);
-                var playPromise = audio.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                      // Automatic playback started!
-                      // Show playing UI.
-                    })
-                    .catch(error => {
-                      // Auto-play was prevented
-                      // Show paused UI.
-                    })
-                }
+            var adhanUrl = timetable_params.otherAdhanUrl;
+            DPT.executeFunctionOnTime(timeParts[0], timeParts[1], timeParts[2], function() {
+                console.log('Playing Adhan: ' + adhanUrl);
+                DPT.playAudio(adhanUrl);
             });
         }
+    },
+
+    playAudio: function(url) {
+        var activateAdhan = jQuery('#activateAdhan').val();
+        if (!activateAdhan) {
+            return;
+        }
+
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        var source = audioContext.createBufferSource();
+        var request = new XMLHttpRequest();
+
+        request.open('GET', url, true);
+        request.responseType = 'arraybuffer';
+
+        request.onload = function() {
+            audioContext.decodeAudioData(request.response, function(buffer) {
+                source.buffer = buffer;
+                source.connect(audioContext.destination);
+                source.start(0);
+            }, function(error) {
+                console.error('Error decoding audio data:', error);
+            });
+        };
+
+        request.send();
     },
 
     fadingMessages: function(){
@@ -365,6 +401,99 @@ DPT = {
             });
         }
     },
+
+    updateTimeDifference: function () {
+
+        setInterval(() => updateTimeDifferenceInterval(), 1000);
+
+        function updateTimeDifferenceInterval() {
+            var now = new Date();
+            var targetTime = new Date();
+
+            var dptScTimeValue = jQuery('.dptScTime').text().trim()
+            var timeParts = dptScTimeValue.split(':');
+            var hours = parseInt(timeParts[0]);
+            var minutes = parseInt(timeParts[1]);
+            var ampm = dptScTimeValue.slice(-2).toUpperCase(); // Extract AM/PM
+
+            if (ampm == 'PM' && hours < 12) {
+                hours += 12;
+            } else if (ampm == 'AM' && hours === 12) {
+                hours = 0;
+            }
+
+            targetTime.setHours(hours, minutes, 0, 0);
+
+            var timeDifference = targetTime - now;
+
+            // If the target time is in the past, add 24 hours to it
+            if (timeDifference < 0) {
+                return;
+            }
+
+            // Convert time difference to hours, minutes, and seconds
+            var diffHours = Math.floor(timeDifference / (1000 * 60 * 60));
+            var diffMinutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+            var diffSeconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+            // Update the dptScTime class element
+            // Update the dptScTime class element
+            var timeDifferenceText;
+            hourText = "hour" + (diffHours > 1 ? "s" : "");
+            minuteText = "minute" + (diffMinutes > 1 ? "s" : "");
+            if (diffHours > 0) {
+                timeDifferenceText = diffHours + " " + DPT.getLocalizedTime(hourText) + " " + diffMinutes + " " + DPT.getLocalizedTime(minuteText);
+            } else if (diffMinutes > 0) {
+                timeDifferenceText = diffMinutes + " " + DPT.getLocalizedTime(minuteText) + " " + diffSeconds + " s";
+            } else {
+                timeDifferenceText = diffSeconds + "s";
+            }
+
+            timeDifferenceText = DPT.getLocalizedNumber(timeDifferenceText);
+            var timeLeftCountDownElements = document.getElementsByClassName('timeLeftCountDown');
+            for (var i = 0; i < timeLeftCountDownElements.length; i++) {
+                document.getElementsByClassName('timeLeftCountDown')[i].innerHTML = timeDifferenceText;
+
+                timeLeftCountDownElements[i].classList.remove('green', 'orange', 'red');
+
+                // Add appropriate class based on diffMinutes
+                if (diffHours < 1) {
+                    if (diffMinutes >= 15 && diffMinutes <= 29) {
+                        timeLeftCountDownElements[i].classList.add('orange');
+                    } else if (diffMinutes < 15) {
+                        timeLeftCountDownElements[i].classList.add('red');
+                    } else {
+                        timeLeftCountDownElements[i].classList.add('green');
+                    }
+                }
+            }
+
+            if (diffHours == 0 && diffMinutes == 0 && diffSeconds == 1) {
+                DPT.beep();
+                DPT.timeoutScreen();
+            }
+        }
+    },
+
+    getLocalizedNumber: function (numbers) {
+        var localNumbers  = jQuery('#localizedNumbers').val();
+        if (! localNumbers) {
+            return numbers;
+        }
+        localNumbers = JSON.parse(localNumbers);
+        return numbers.split('').map(function(char) {
+            return localNumbers[char] || char;
+        }).join('');
+    },
+
+    getLocalizedTime: function (time) {
+        var localTimes  = jQuery('#localizedTimes').val();
+        if (! localTimes) {
+            return time;
+        }
+        localTimes = JSON.parse(localTimes);
+        return localTimes[time] || time;
+    }
 };
 jQuery(document).ready(function() { DPT.init(); });
 

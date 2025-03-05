@@ -9,13 +9,20 @@ You can modify the default Adhan by uploading your own adhan and update the Adha
 </br>
 Ramadan Fajr Adhan will play at fajr start time.
 </p>
+<span class="alert-warning">Remember to ALLOW sound/audio in your browser settings</span>
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-8 col-xs-12">
             <form name="adhanSettings" method="post" class="form-group">
             <?php echo wp_nonce_field( 'adhanSettings'); ?>
                 <table class="table">
-                <tr>
+                    <tr>
+                        <td>Activate Beep:</td>
+                        <td>
+                            <input type="checkbox" name="activateBeep" value="beep" <?php if(get_option("activateBeep") === 'beep'){ echo 'checked'; } ?>>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Activate Adhan:</td>
                         <td>
                             <input type="checkbox" name="activateAdhan" value="adhan" <?php if(get_option("activateAdhan") === 'adhan'){ echo 'checked'; } ?>>
