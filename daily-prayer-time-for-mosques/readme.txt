@@ -5,7 +5,7 @@ Tags: prayer time, salah time, salat, namaz, Quran verse
 Requires at least: 4.5
 Requires PHP: 7.2
 Tested up to: 6.7
-Stable tag: 2025.03.04
+Stable tag: 2025.03.06
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,20 +127,14 @@ Please look at https://trello.com/b/6Re5Dga7/salah-time-wordpress-plugin
 
 == Changelog ==
 
-= 2025.03.04 =
-* New: Beep sound
-* New: Adhan sound
-* Fixed: Faster page load
-* Fixed: Fixed the issue of not showing the Jumuah time
-* Fixed: Adhan only widget
-* Fixed: Keep Zuhr and display Jumuah time separately
+= 2025.03.06 =
+* New: Highlight font colour
+* Fixed: Time remaining count down
+* Fixed: DIM
 
 == Upgrade Notice ==
 
-= 2025.03.04 =
-* New: Beep sound
-* New: Adhan sound
-* Fixed: Faster page load
-* Fixed: Fixed the issue of not showing the Jumuah time
-* Fixed: Adhan only widget
-* Fixed: Keep Zuhr and display Jumuah time separately
+= 2025.03.06 =
+* New: Highlight font colour
+* Fixed: Time remaining count down
+* Fixed: DIM
