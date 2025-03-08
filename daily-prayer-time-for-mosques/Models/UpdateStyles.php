@@ -149,7 +149,7 @@ class UpdateStyles
                 color: " . $highlightFont ."!important;" ."
             }
 
-            .d-masjid-e-usman  .nextPrayer h3, .nextPrayer .title, .nextPrayer {
+            .d-masjid-e-usman  .nextPrayer h3, .nextPrayer .title, tr.nextPrayer, td span.nextPrayer {
                 background: " . $highlight ."!important;" ."
                 color: " . $highlightFont ."!important;" ."
             }

@@ -1,11 +1,11 @@
 === Daily Prayer Time ===
-Contributors: mmrs151
+Contributors: mmrs151, yasin84
 Donate link: https://donate.uwt.org/Account/Index.aspx
 Tags: prayer time, salah time, salat, namaz, Quran verse
 Requires at least: 4.5
 Requires PHP: 7.2
 Tested up to: 6.7
-Stable tag: 2025.03.06
+Stable tag: 2025.03.08
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,14 +127,12 @@ Please look at https://trello.com/b/6Re5Dga7/salah-time-wordpress-plugin
 
 == Changelog ==
 
-= 2025.03.06 =
-* New: Highlight font colour
-* Fixed: Time remaining count down
-* Fixed: DIM
+= 2025.03.08 =
+* Fix: Next prayer time background
+* Fix: Smaller gregorian date
 
 == Upgrade Notice ==
 
-= 2025.03.06 =
-* New: Highlight font colour
-* Fixed: Time remaining count down
-* Fixed: DIM
+= 2025.03.08 =
+* Fix: Next prayer time background
+* Fix: Smaller gregorian date
