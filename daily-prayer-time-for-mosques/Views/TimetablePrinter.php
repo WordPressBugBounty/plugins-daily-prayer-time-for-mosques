@@ -106,7 +106,7 @@ class TimetablePrinter
         $this->localTimes = $this->getLocalTimes();
         $this->dptHelper = new DPTHelper();
         $this->hijriDate = new HijriDate();
-        $this->hijridateString = $this->hijriDate->getDate(date("d"), date("m"), date("Y"), true);
+        $this->hijridateString = $this->hijriDate->getDate(date("d"), date("m"), date("Y"), true, true);
     }
 
     public function getTableClass()
@@ -330,15 +330,20 @@ class TimetablePrinter
         $nextPrayer = $this->getNextPrayer($row);
 
         if ($apiCall) {
+            $nextPrayerTime = $this->getNextPrayerActualTime($row, $nextPrayer);
+            $nextAzanTime = $this->getNextAzanActualTime($row, $nextPrayer);
+            
             return [
                 'prayerName' => $nextPrayer,
-                'timeLeft' => $diff
+                'timeLeft' => $diff,
+                'iqamahTime' => $nextPrayerTime,
+                'azanTime' => $nextAzanTime
             ];
         }
 
         $hijriDate = '';
         if($row['displayHijriDate']) {
-            $hijriDate = $this->hijriDate->getDate(date("d"), date("m"), date("Y"), true);
+            $hijriDate = $this->hijriDate->getDate(date("d"), date("m"), date("Y"), true, true);
         }
 
         $printDates = '';
@@ -474,6 +479,36 @@ class TimetablePrinter
         array_pop($jamahNames); // remove zawal
         return array_combine( $jamahNames, $jamahTimes );
 
+    }
+
+    protected function getNextPrayerActualTime(array $row, $nextPrayer)
+    {
+        if ($nextPrayer == 'zawal' || $nextPrayer == 'sunrise') {
+            return $row['sunrise'];
+        }
+
+        $key = strtolower($nextPrayer . '_jamah');
+        
+        if (isset($row[$key])) {
+            return $row[$key];
+        }
+        
+        return null;
+    }
+
+    protected function getNextAzanActualTime(array $row, $nextPrayer)
+    {
+        if ($nextPrayer == 'zawal' || $nextPrayer == 'sunrise') {
+            return $row['sunrise'];
+        }
+
+        $key = strtolower($nextPrayer . '_begins');
+        
+        if (isset($row[$key])) {
+            return $row[$key];
+        }
+        
+        return null;
     }
 
     /**
