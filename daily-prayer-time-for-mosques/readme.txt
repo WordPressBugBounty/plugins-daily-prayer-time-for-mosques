@@ -5,7 +5,7 @@ Tags: prayer time, salah time, salat, namaz, Quran verse
 Requires at least: 4.5
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 2026.05.05
+Stable tag: 2026.05.09
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

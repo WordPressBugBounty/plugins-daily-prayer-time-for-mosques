@@ -459,8 +459,23 @@ height: 70%;
     opacity: 50%;
 }
 
-.x-board div.dsScroll{
-    float: left;
+.x-board .dpt-ticker {
+    overflow: hidden;
+    width: 100%;
+}
+
+.x-board .dpt-ticker-track {
+    display: inline-block;
+    white-space: nowrap;
+    animation: dpt-ticker-scroll linear infinite;
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+@keyframes dpt-ticker-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
 }
 
 .x-board span.jamahChanges {
@@ -675,10 +690,12 @@ height: 70%;
     font-weight: bold;
     font-size: 4vh;
     line-height: 1.2;
+    will-change: opacity;
 }
 .x-board .blink-vertical{
     animation: blink 1s infinite;
     font-weight: bold;
+    will-change: opacity;
 }
 
 .x-board .blink-vertical a{
@@ -720,7 +737,7 @@ div.jamahChanges-vertical span{
     padding-bottom: 10px;
 }
 
-h3.scrolling-vertical > marquee > div > span {
+div.scrolling-vertical > marquee > div > span {
     font-size: 3vh;
     word-spacing: 10px;
     padding-bottom: 10px;
@@ -807,6 +824,7 @@ inspired from https://codepen.io/Rowno/pen/Afykb
 .carousel-fade .carousel-inner .item {
     opacity: 0;
     transition-property: opacity;
+    will-change: opacity;
 }
 
 .carousel-fade .carousel-inner .active {
@@ -897,6 +915,7 @@ ul.clock li#sec {
     position: relative;
     -moz-animation: mymove 1s ease infinite;
     -webkit-animation: mymove 1s ease infinite;
+    will-change: opacity;
 }
 
 /* Simple Animation */

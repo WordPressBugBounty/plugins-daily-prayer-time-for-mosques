@@ -84,9 +84,11 @@ class DigitalScreen extends DailyShortCode
         if ($template = get_option('dsTemplate')) {
             $this->template = $template;
         }
-        
+
+        ob_start();
         include "design/$this->template.php";
         $this->template = null;
+        return ob_get_clean();
     }
 
     private function getHiddenVariables()
@@ -343,11 +345,11 @@ class DigitalScreen extends DailyShortCode
                     </div>
                     <div class="col-sm-9 col-xs-12 height-100 dpt-bg">
                         <div class="align-middle">
-                            <h3 class="text-primary scrolling">
-                            <div class="marquee">
-                                <span>' . $this->getIqamahUpdate() . '</span>
+                            <div class="text-primary scrolling">
+                            <div class="dpt-ticker">
+                                ' . $this->getIqamahUpdate() . '
                             </div>
-                            </h3>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -359,11 +361,11 @@ class DigitalScreen extends DailyShortCode
                 <div class="row bottom-row">
                     <div class="col-sm-12 col-xs-12 height-24">
                         <div class="align-middle">
-                            <h3 class="text-primary scrolling-vertical">
-                            <div class="marquee">
-                                <span>' . $this->getIqamahUpdate() . '</span>
+                            <div class="text-primary scrolling-vertical">
+                            <div class="dpt-ticker">
+                                ' . $this->getIqamahUpdate() . '
                             </div>
-                            </h3>
+                            </div>
                         </div>
                     </div>
                     <div class="notificationBackground notificationFont col-sm-12 col-xs-12 text-center height-50 align-middle">
@@ -441,18 +443,19 @@ class DigitalScreen extends DailyShortCode
             $orientation = 'vertical';
         }
 
+        $content = '';
+
         if ( $this->scrollText ) {
-            return '
-            <div class="dsScroll">
-                <input type="hidden" id="scrollSpeed" value="' . $this->scrollSpeed . '">
-                <a class="scroll" target="_new" href="'. $this->scrollUrl .' " >'. $this->scrollText . '</a>
-            </div>' . do_shortcode("[display_iqamah_update orientation='" . $orientation . "']");
-        } else {
-            return '
-            <div class="dsScroll">
-                <input type="hidden" id="scrollSpeed" value="' . $this->scrollSpeed . '">
-            </div>' . do_shortcode("[display_iqamah_update orientation='" . $orientation . "']");
+            $content .= ' > '. $this->scrollText . ' < ';
         }
+
+        $content .= do_shortcode("[display_iqamah_update orientation='" . $orientation . "']");
+
+        // Duplicate content so the loop is seamless (animation goes 0 → -50%)
+        return '<input type="hidden" id="scrollSpeed" value="' . $this->scrollSpeed . '">'
+            . '<span class="dpt-ticker-track" style="animation-duration:' . (int) $this->scrollSpeed . 's">'
+            . $content . $content
+            . '</span>';
     }
 
     private function getBlink(): string
@@ -549,7 +552,7 @@ class DigitalScreen extends DailyShortCode
             return $this->presentationSlides;
         }
 
-        foreach (range(1, 11) as $item) {
+        foreach (range(1, 13) as $item) {
             $slideUrl = get_option('slider' . $item);
             if (!empty($slideUrl) && filter_var($slideUrl, FILTER_VALIDATE_URL)) {
                 $slides[] = $slideUrl;
